@@ -1,0 +1,49 @@
+# ─── Node Modules (NEVER commit these) ────────────────────────────────────────
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── Environment Variables (NEVER commit these) ───────────────────────────────
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+**/.env
+
+# ─── Build Outputs ─────────────────────────────────────────────────────────────
+dist/
+build/
+.next/
+out/
+
+# ─── Serverless Framework ──────────────────────────────────────────────────────
+.serverless/
+
+# ─── Prisma ────────────────────────────────────────────────────────────────────
+backend/src/prisma/migrations/dev.db
+*.db
+
+# ─── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+
+# ─── Testing ───────────────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ─── Architecture (local only) ─────────────────────────────────────────────────
+architecture/

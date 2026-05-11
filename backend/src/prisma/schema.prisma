@@ -1,0 +1,59 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String         @id @default(uuid())
+  cognitoId     String         @unique
+  email         String         @unique
+  name          String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  events        Event[]        @relation("EventCreator")
+  registrations Registration[]
+}
+
+model Event {
+  id            String         @id @default(uuid())
+  title         String
+  description   String
+  date          DateTime
+  location      String
+  capacity      Int            @default(100)
+  imageUrl      String?
+  documentUrl   String?
+  status        EventStatus    @default(ACTIVE)
+  createdById   String
+  createdBy     User           @relation("EventCreator", fields: [createdById], references: [id])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  registrations Registration[]
+}
+
+model Registration {
+  id          String             @id @default(uuid())
+  userId      String
+  eventId     String
+  status      RegistrationStatus @default(CONFIRMED)
+  createdAt   DateTime           @default(now())
+  user        User               @relation(fields: [userId], references: [id])
+  event       Event              @relation(fields: [eventId], references: [id])
+
+  @@unique([userId, eventId])
+}
+
+enum EventStatus {
+  ACTIVE
+  CANCELLED
+  COMPLETED
+}
+
+enum RegistrationStatus {
+  CONFIRMED
+  CANCELLED
+}
