@@ -1,12 +1,6 @@
-# ☁️ CloudWave Events
+A production-grade, full-stack serverless event management platform built entirely on AWS.
 
-> A production-grade, full-stack serverless event management platform built entirely on AWS.
-
-![Architecture](./architecture/diagram.svg)
-
----
-
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ```
 [React + Vite Frontend]
@@ -35,7 +29,7 @@
 
 ---
 
-## 🚀 Tech Stack
+## Tech Stack used
 
 | Layer | Technology |
 |---|---|
@@ -55,7 +49,7 @@
 
 ---
 
-## 📋 Prerequisites
+## Prerequisites
 
 Make sure these are installed before starting:
 
@@ -75,7 +69,7 @@ npm install -g prisma
 
 ---
 
-## ⚙️ Phase 1 — AWS Setup & RDS Database
+## Phase 1 — AWS Setup & RDS Database
 
 ### 1.1 Configure AWS CLI
 ```powershell
@@ -116,7 +110,7 @@ aws ssm put-parameter `
 
 ---
 
-## ⚙️ Phase 2 — Backend Setup
+## Phase 2 — Backend Setup
 
 ### 2.1 Install dependencies
 ```powershell
@@ -146,7 +140,7 @@ After deploy, copy the API Gateway URL from the output.
 
 ---
 
-## ⚙️ Phase 3 — Frontend Setup
+## Phase 3 — Frontend Setup
 
 ### 3.1 Install dependencies
 ```powershell
@@ -189,7 +183,7 @@ aws ses verify-email-identity `
 
 ---
 
-## ⚙️ Phase 5 — Frontend CloudFront Deployment
+## Phase 5 — Frontend CloudFront Deployment
 
 ```powershell
 # Create S3 bucket for frontend
@@ -205,7 +199,7 @@ Create a CloudFront distribution pointing to this S3 bucket via the AWS Console.
 
 ---
 
-## ⚙️ Phase 6 — CI/CD Setup (GitHub Actions)
+## Phase 6 — CI/CD Setup (GitHub Actions)
 
 Add these secrets to your GitHub repository (`Settings → Secrets → Actions`):
 
@@ -224,32 +218,32 @@ Add these secrets to your GitHub repository (`Settings → Secrets → Actions`)
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Events
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
 | `GET` | `/events` | Public | List all events (supports `?search=`, `?page=`, `?limit=`) |
 | `GET` | `/events/{id}` | Public | Get single event |
-| `POST` | `/events` | 🔒 Required | Create event |
-| `PUT` | `/events/{id}` | 🔒 Required | Update event (owner only) |
-| `DELETE` | `/events/{id}` | 🔒 Required | Delete event (owner only) |
+| `POST` | `/events` |  Required | Create event |
+| `PUT` | `/events/{id}` |  Required | Update event (owner only) |
+| `DELETE` | `/events/{id}` |  Required | Delete event (owner only) |
 
 ### Registrations
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
-| `POST` | `/events/{id}/register` | 🔒 Required | Register for event |
-| `GET` | `/registrations/me` | 🔒 Required | Get my registrations |
-| `PATCH` | `/registrations/{id}/cancel` | 🔒 Required | Cancel registration |
+| `POST` | `/events/{id}/register` |  Required | Register for event |
+| `GET` | `/registrations/me` |  Required | Get my registrations |
+| `PATCH` | `/registrations/{id}/cancel` |  Required | Cancel registration |
 
 ### Files
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
-| `POST` | `/files/presigned-url` | 🔒 Required | Get S3 pre-signed upload URL |
+| `POST` | `/files/presigned-url` |  Required | Get S3 pre-signed upload URL |
 
 ---
 
-## 📊 Database Schema
+##  Database Schema
 
 ```
 User          — Synced from Cognito on registration
@@ -259,7 +253,7 @@ Registration  — Links users to events (unique constraint prevents duplicates)
 
 ---
 
-## 🔄 Async Flow (SQS)
+##  Async Flow (SQS)
 
 ```
 User Registers
@@ -282,13 +276,13 @@ Message moved to DLQ
 
 ---
 
-## ⏰ EventBridge Scheduler
+##  EventBridge Scheduler
 
 Runs daily at **9:00 AM UTC**. Finds all events happening tomorrow and sends reminder emails to every confirmed registrant.
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 cloudwave-events/
@@ -317,7 +311,7 @@ cloudwave-events/
 
 ---
 
-## 🛡️ Security Highlights
+##  Security Highlights
 
 - JWT tokens validated server-side on every protected Lambda
 - Secrets stored in SSM Parameter Store (never hardcoded)
@@ -327,7 +321,7 @@ cloudwave-events/
 
 ---
 
-## 📈 CloudWatch Monitoring
+##  CloudWatch Monitoring
 
 All Lambda functions log structured output with `[functionName]` prefixes. View logs:
 
