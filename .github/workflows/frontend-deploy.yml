@@ -29,8 +29,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AKIAW5LTREC24ZK5E3WQ }}
-          aws-secret-access-key: ${{ secrets.JHM5voPxyFkDG0fB26eGwlkNsM3yQY3/tKtYCR5v }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
       - name: Install dependencies
@@ -38,20 +38,20 @@ jobs:
 
       - name: Create env file
         run: |
-          echo "VITE_API_URL=${{ secrets.https://797x7l7sw1.execute-api.us-east-1.amazonaws.com/dev }}" >> .env
-          echo "VITE_COGNITO_USER_POOL_ID=${{ secrets.us-east-1_ALrQWmdek }}" >> .env
-          echo "VITE_COGNITO_CLIENT_ID=${{ secrets.2inog3ka1gctv321k3svtv0g9n }}" >> .env
+          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
+          echo "VITE_COGNITO_USER_POOL_ID=${{ secrets.VITE_COGNITO_USER_POOL_ID }}" >> .env
+          echo "VITE_COGNITO_CLIENT_ID=${{ secrets.VITE_COGNITO_CLIENT_ID }}" >> .env
           echo "VITE_COGNITO_REGION=us-east-1" >> .env
-          echo "VITE_CLOUDFRONT_URL=${{ secrets.https://dh5klvifbxbik.cloudfront.net }}" >> .env
+          echo "VITE_CLOUDFRONT_URL=${{ secrets.VITE_CLOUDFRONT_URL }}" >> .env
 
       - name: Build frontend
         run: npm run build
 
       - name: Deploy to S3
-        run: aws s3 sync dist s3://${{ secrets.cloudwave-events-frontend-dev }} --delete
+        run: aws s3 sync dist s3://${{ secrets.FRONTEND_BUCKET }} --delete
 
       - name: Invalidate CloudFront cache
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.E29SKOGZ7YMUV6 }} \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
             --paths "/*"
