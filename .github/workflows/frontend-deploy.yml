@@ -3,12 +3,13 @@ name: Deploy Frontend
 on:
   push:
     branches: [main]
-    paths: [frontend/**]
+    paths:
+      - 'frontend/**'
   workflow_dispatch:
 
 jobs:
   deploy:
-    name: Build & Deploy to S3/CloudFront
+    name: Deploy Frontend to S3 + CloudFront
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -28,28 +29,29 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AKIAW5LTREC24ZK5E3WQ }}
+          aws-secret-access-key: ${{ secrets.JHM5voPxyFkDG0fB26eGwlkNsM3yQY3/tKtYCR5v }}
+          aws-region: us-east-1
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Create .env file
+      - name: Create env file
         run: |
-          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
-          echo "VITE_COGNITO_USER_POOL_ID=${{ secrets.VITE_COGNITO_USER_POOL_ID }}" >> .env
-          echo "VITE_COGNITO_CLIENT_ID=${{ secrets.VITE_COGNITO_CLIENT_ID }}" >> .env
+          echo "VITE_API_URL=${{ secrets.https://797x7l7sw1.execute-api.us-east-1.amazonaws.com/dev }}" >> .env
+          echo "VITE_COGNITO_USER_POOL_ID=${{ secrets.us-east-1_ALrQWmdek }}" >> .env
+          echo "VITE_COGNITO_CLIENT_ID=${{ secrets.2inog3ka1gctv321k3svtv0g9n }}" >> .env
+          echo "VITE_COGNITO_REGION=us-east-1" >> .env
+          echo "VITE_CLOUDFRONT_URL=${{ secrets.https://dh5klvifbxbik.cloudfront.net }}" >> .env
 
-      - name: Build React app
+      - name: Build frontend
         run: npm run build
 
       - name: Deploy to S3
-        run: |
-          aws s3 sync dist/ s3://${{ secrets.FRONTEND_S3_BUCKET }} --delete
+        run: aws s3 sync dist s3://${{ secrets.cloudwave-events-frontend-dev }} --delete
 
       - name: Invalidate CloudFront cache
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --distribution-id ${{ secrets.E29SKOGZ7YMUV6 }} \
             --paths "/*"

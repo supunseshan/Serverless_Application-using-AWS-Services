@@ -2,6 +2,21 @@ service: cloudwave-events-backend
 
 frameworkVersion: "3"
 
+package:
+  individually: false
+  patterns:
+    - '!node_modules/@prisma/engines/**'
+    - '!node_modules/prisma/**'
+    - '!node_modules/serverless/**'
+    - '!node_modules/serverless-offline/**'
+    - '!node_modules/typescript/**'
+    - '!node_modules/ts-node/**'
+    - '!test/**'
+    - '!.git/**'
+    - '!*.md'
+    - 'node_modules/.prisma/client/**'
+    - 'node_modules/@prisma/client/**'
+    
 useDotenv: true
 
 provider:
@@ -19,11 +34,11 @@ provider:
     DATABASE_URL: ${ssm:/cloudwave/${self:provider.stage}/database-url}
     COGNITO_USER_POOL_ID: ${ssm:/cloudwave/${self:provider.stage}/cognito-user-pool-id}
     COGNITO_CLIENT_ID: ${ssm:/cloudwave/${self:provider.stage}/cognito-client-id}
-    S3_BUCKET: ${self:custom.s3BucketName}
+    S3_BUCKET: cloudwave-events-files-${self:provider.stage}
     CLOUDFRONT_URL: ${ssm:/cloudwave/${self:provider.stage}/cloudfront-url}
     SES_FROM_EMAIL: ${ssm:/cloudwave/${self:provider.stage}/ses-from-email}
-    SQS_QUEUE_URL: !Ref RegistrationQueue
-    SQS_DLQ_URL: !Ref RegistrationDLQ
+    SQS_QUEUE_URL: https://sqs.us-east-1.amazonaws.com/475373052085/cloudwave-registration-queue-${self:provider.stage}
+    SQS_DLQ_URL: https://sqs.us-east-1.amazonaws.com/475373052085/cloudwave-registration-dlq-${self:provider.stage}
 
   iam:
     role:
@@ -33,7 +48,7 @@ provider:
             - s3:PutObject
             - s3:GetObject
             - s3:DeleteObject
-          Resource: "arn:aws:s3:::${self:custom.s3BucketName}/*"
+          Resource: "arn:aws:s3:::cloudwave-events-files-${self:provider.stage}/*"
         - Effect: Allow
           Action:
             - ses:SendEmail
@@ -45,7 +60,9 @@ provider:
             - sqs:ReceiveMessage
             - sqs:DeleteMessage
             - sqs:GetQueueAttributes
-          Resource: !GetAtt RegistrationQueue.Arn
+          Resource:
+            - "arn:aws:sqs:us-east-1:475373052085:cloudwave-registration-queue-${self:provider.stage}"
+            - "arn:aws:sqs:us-east-1:475373052085:cloudwave-registration-dlq-${self:provider.stage}"
         - Effect: Allow
           Action:
             - ssm:GetParameter
@@ -57,9 +74,13 @@ provider:
             - logs:CreateLogStream
             - logs:PutLogEvents
           Resource: "*"
+        - Effect: Allow
+          Action:
+            - cognito-idp:AdminGetUser
+            - cognito-idp:AdminCreateUser
+          Resource: "arn:aws:cognito-idp:us-east-1:475373052085:userpool/us-east-1_ALrQWmdek"
 
 custom:
-  s3BucketName: cloudwave-events-files-${self:provider.stage}
   serverless-offline:
     httpPort: 4000
 
@@ -71,10 +92,6 @@ functions:
   # ─── AUTH ───────────────────────────────────────────────────
   syncUser:
     handler: src/functions/auth/syncUser.handler
-    events:
-      - cognitoUserPool:
-          pool: CloudWaveUserPool
-          trigger: PostConfirmation
 
   # ─── EVENTS ─────────────────────────────────────────────────
   createEvent:
@@ -85,8 +102,9 @@ functions:
           method: post
           cors: true
           authorizer:
+            name: CognitoAuth
             type: COGNITO_USER_POOLS
-            authorizerId: !Ref CognitoAuthorizer
+            arn: "arn:aws:cognito-idp:us-east-1:475373052085:userpool/us-east-1_ALrQWmdek"
 
   getEvents:
     handler: src/functions/events/getEvents.handler
@@ -112,8 +130,9 @@ functions:
           method: put
           cors: true
           authorizer:
+            name: CognitoAuth
             type: COGNITO_USER_POOLS
-            authorizerId: !Ref CognitoAuthorizer
+            arn: "arn:aws:cognito-idp:us-east-1:475373052085:userpool/us-east-1_ALrQWmdek"
 
   deleteEvent:
     handler: src/functions/events/deleteEvent.handler
@@ -123,8 +142,9 @@ functions:
           method: delete
           cors: true
           authorizer:
+            name: CognitoAuth
             type: COGNITO_USER_POOLS
-            authorizerId: !Ref CognitoAuthorizer
+            arn: "arn:aws:cognito-idp:us-east-1:475373052085:userpool/us-east-1_ALrQWmdek"
 
   # ─── REGISTRATIONS ──────────────────────────────────────────
   registerForEvent:
@@ -135,8 +155,9 @@ functions:
           method: post
           cors: true
           authorizer:
+            name: CognitoAuth
             type: COGNITO_USER_POOLS
-            authorizerId: !Ref CognitoAuthorizer
+            arn: "arn:aws:cognito-idp:us-east-1:475373052085:userpool/us-east-1_ALrQWmdek"
 
   getMyRegistrations:
     handler: src/functions/registrations/getMyRegistrations.handler
@@ -146,8 +167,9 @@ functions:
           method: get
           cors: true
           authorizer:
+            name: CognitoAuth
             type: COGNITO_USER_POOLS
-            authorizerId: !Ref CognitoAuthorizer
+            arn: "arn:aws:cognito-idp:us-east-1:475373052085:userpool/us-east-1_ALrQWmdek"
 
   cancelRegistration:
     handler: src/functions/registrations/cancelRegistration.handler
@@ -157,8 +179,9 @@ functions:
           method: patch
           cors: true
           authorizer:
+            name: CognitoAuth
             type: COGNITO_USER_POOLS
-            authorizerId: !Ref CognitoAuthorizer
+            arn: "arn:aws:cognito-idp:us-east-1:475373052085:userpool/us-east-1_ALrQWmdek"
 
   # ─── FILES ──────────────────────────────────────────────────
   getPresignedUrl:
@@ -169,18 +192,19 @@ functions:
           method: post
           cors: true
           authorizer:
+            name: CognitoAuth
             type: COGNITO_USER_POOLS
-            authorizerId: !Ref CognitoAuthorizer
+            arn: "arn:aws:cognito-idp:us-east-1:475373052085:userpool/us-east-1_ALrQWmdek"
 
   # ─── NOTIFICATIONS ──────────────────────────────────────────
   processEmailQueue:
     handler: src/functions/notifications/processEmailQueue.handler
     events:
       - sqs:
-          arn: !GetAtt RegistrationQueue.Arn
+          arn: "arn:aws:sqs:us-east-1:475373052085:cloudwave-registration-queue-${self:provider.stage}"
           batchSize: 10
 
-  # ─── QUEUE MONITOR ──────────────────────────────────────────────
+  # ─── QUEUE MONITOR ──────────────────────────────────────────
   monitorDLQ:
     handler: src/functions/queue/monitorDLQ.handler
     events:
@@ -197,89 +221,6 @@ functions:
           enabled: true
 
 resources:
-  Resources:
-    # ─── COGNITO ────────────────────────────────────────────────
-    CloudWaveUserPool:
-      Type: AWS::Cognito::UserPool
-      Properties:
-        UserPoolName: cloudwave-user-pool-${self:provider.stage}
-        AutoVerifiedAttributes:
-          - email
-        UsernameAttributes:
-          - email
-        Policies:
-          PasswordPolicy:
-            MinimumLength: 8
-            RequireUppercase: true
-            RequireLowercase: true
-            RequireNumbers: true
-        Schema:
-          - Name: name
-            AttributeDataType: String
-            Mutable: true
-            Required: true
-
-    CloudWaveUserPoolClient:
-      Type: AWS::Cognito::UserPoolClient
-      Properties:
-        ClientName: cloudwave-client-${self:provider.stage}
-        UserPoolId: !Ref CloudWaveUserPool
-        ExplicitAuthFlows:
-          - ALLOW_USER_PASSWORD_AUTH
-          - ALLOW_REFRESH_TOKEN_AUTH
-          - ALLOW_USER_SRP_AUTH
-        GenerateSecret: false
-        TokenValidityUnits:
-          AccessToken: hours
-          IdToken: hours
-          RefreshToken: days
-        AccessTokenValidity: 1
-        IdTokenValidity: 1
-        RefreshTokenValidity: 30
-
-    # ─── API GATEWAY AUTHORIZER ──────────────────────────────────
-    CognitoAuthorizer:
-      Type: AWS::ApiGateway::Authorizer
-      Properties:
-        Name: CognitoAuthorizer
-        Type: COGNITO_USER_POOLS
-        IdentitySource: method.request.header.Authorization
-        RestApiId: !Ref ApiGatewayRestApi
-        ProviderARNs:
-          - !GetAtt CloudWaveUserPool.Arn
-
-    # ─── S3 BUCKET ───────────────────────────────────────────────
-    FilesBucket:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: ${self:custom.s3BucketName}
-        CorsConfiguration:
-          CorsRules:
-            - AllowedOrigins: ["*"]
-              AllowedHeaders: ["*"]
-              AllowedMethods: [GET, PUT, POST, DELETE]
-              MaxAge: 3000
-
-    # ─── SQS QUEUE ───────────────────────────────────────────────
-    RegistrationQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: cloudwave-registration-queue-${self:provider.stage}
-        VisibilityTimeout: 60
-        RedrivePolicy:
-          deadLetterTargetArn: !GetAtt RegistrationDLQ.Arn
-          maxReceiveCount: 3
-
-    RegistrationDLQ:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: cloudwave-registration-dlq-${self:provider.stage}
-        MessageRetentionPeriod: 1209600
-
   Outputs:
-    UserPoolId:
-      Value: !Ref CloudWaveUserPool
-    UserPoolClientId:
-      Value: !Ref CloudWaveUserPoolClient
     ApiGatewayUrl:
       Value: !Sub "https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${self:provider.stage}"

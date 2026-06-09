@@ -1,3 +1,4 @@
+// src/libs/db.js
 const { PrismaClient } = require("@prisma/client");
 
 let prisma;
@@ -5,7 +6,6 @@ let prisma;
 const getDb = () => {
   if (!prisma) {
     prisma = new PrismaClient({
-      datasourceUrl: process.env.DATABASE_URL,
       log: process.env.STAGE === "dev" ? ["error", "warn"] : ["error"],
     });
   }

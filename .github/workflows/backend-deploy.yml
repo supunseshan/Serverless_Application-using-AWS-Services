@@ -3,12 +3,13 @@ name: Deploy Backend
 on:
   push:
     branches: [main]
-    paths: [backend/**]
+    paths:
+      - 'backend/**'
   workflow_dispatch:
 
 jobs:
   deploy:
-    name: Deploy to AWS
+    name: Deploy Backend to AWS
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -28,22 +29,20 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AKIAW5LTREC24ZK5E3WQ }}
+          aws-secret-access-key: ${{ secrets.JHM5voPxyFkDG0fB26eGwlkNsM3yQY3/tKtYCR5v }}
+          aws-region: us-east-1
 
       - name: Install dependencies
         run: npm ci
 
       - name: Generate Prisma client
-        run: npx prisma generate
-
-      - name: Deploy with Serverless Framework
-        run: npx serverless deploy --stage prod
-        env:
-          SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+        run: npx prisma generate --schema=src/prisma/schema.prisma
 
       - name: Run database migrations
-        run: npx prisma migrate deploy
+        run: npx prisma migrate deploy --schema=src/prisma/schema.prisma
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.postgresql://cloudwave:CloudWave2025!@cloudwave-db-dev.cg5204yg6kn5.us-east-1.rds.amazonaws.com:5432/cloudwave }}
+
+      - name: Deploy with Serverless Framework
+        run: npx serverless deploy --stage dev

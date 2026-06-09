@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap');
+
 @layer base {
   * { box-sizing: border-box; }
 
@@ -12,32 +14,35 @@
   }
 
   body {
-    background-color: #080810;
-    color: #e2e2f0;
+    @apply bg-surface-900 text-slate-200;
     font-family: 'DM Sans', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
   }
 
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Syne', sans-serif;
+  }
+
   ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: #0e0e1a; }
-  ::-webkit-scrollbar-thumb { background: #4338ca; border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+  ::-webkit-scrollbar-track { @apply bg-surface-800; }
+  ::-webkit-scrollbar-thumb { @apply bg-brand-700 rounded; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-brand-500; }
 
   ::selection { background: rgba(99,102,241,0.3); color: #fff; }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-brand-500 hover:bg-brand-600 text-white font-display font-600 px-6 py-3 rounded-xl transition-all duration-200 hover:shadow-glow hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-surface-900;
+    @apply bg-brand-500 hover:bg-brand-600 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 hover:shadow-glow hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-surface-900;
   }
 
   .btn-secondary {
-    @apply bg-surface-600 hover:bg-surface-500 text-white font-display font-500 px-6 py-3 rounded-xl border border-white/10 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-surface-900;
+    @apply bg-surface-600 hover:bg-surface-500 text-white font-semibold px-6 py-3 rounded-xl border border-white/10 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-surface-900;
   }
 
   .btn-ghost {
-    @apply text-slate-400 hover:text-white hover:bg-white/5 font-body font-400 px-4 py-2 rounded-lg transition-all duration-200 focus:outline-none;
+    @apply text-slate-400 hover:text-white hover:bg-white/5 font-normal px-4 py-2 rounded-lg transition-all duration-200 focus:outline-none;
   }
 
   .card {
@@ -49,15 +54,15 @@
   }
 
   .input-field {
-    @apply w-full bg-surface-600 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 font-body focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200;
+    @apply w-full bg-surface-600 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200;
   }
 
   .label {
-    @apply block text-sm font-body font-500 text-slate-300 mb-2;
+    @apply block text-sm font-medium text-slate-300 mb-2;
   }
 
   .badge {
-    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-500 uppercase tracking-wider;
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider;
   }
 
   .badge-active {
@@ -81,7 +86,7 @@
   }
 
   .section-title {
-    @apply font-display font-700 text-white;
+    @apply font-bold text-white;
   }
 
   .noise-overlay {

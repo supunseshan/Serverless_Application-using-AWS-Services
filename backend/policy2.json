@@ -1,0 +1,1 @@
+{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":["events:*","scheduler:*","cloudfront:*","logs:*","ec2:*","cloudformation:*","sts:*","iam:*"],"Resource":"*"}]}
